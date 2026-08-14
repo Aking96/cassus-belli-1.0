@@ -278,6 +278,12 @@ function CampaignUI.draw(campaign)
         local btn = actionButtonRect(SHOP_CARD_Y + cardH + 90)
         drawButton(btn.x, btn.y, btn.w, btn.h, "CONTINUE", isOver(btn.x, btn.y, btn.w, btn.h, mx, my))
 
+    elseif campaign.state == STATE.COMMANDER_RECRUIT then
+        drawCollectionButton(mx, my)
+        drawTitle("RECRUIT A COMMANDER", 40)
+        drawSubtitle(string.format("%d / %d selected", #campaign.playerCommanders, campaign.MAX_PLAYER_COMMANDERS), 85)
+        drawCommanderButtons(campaign.availableOpponents, mx, my)
+
     elseif campaign.state == STATE.BATTLE_SELECT then
         drawCollectionButton(mx, my)
         drawTitle("SELECT YOUR NEXT", 40)
@@ -356,6 +362,20 @@ function CampaignUI.handleClick(campaign, mx, my)
         local btn = actionButtonRect(SHOP_CARD_Y + cardH + 90)
         if isOver(btn.x, btn.y, btn.w, btn.h, mx, my) then
             campaign:leaveShop()
+        end
+
+    elseif campaign.state == STATE.COMMANDER_RECRUIT then
+        local collectionBtn = collectionButtonRect()
+        if isOver(collectionBtn.x, collectionBtn.y, collectionBtn.w, collectionBtn.h, mx, my) then
+            CollectionUI.open(campaign)
+            return false
+        end
+
+        for _, rect in ipairs(commanderButtonRects(campaign.availableOpponents)) do
+            if isOver(rect.x, rect.y, rect.w, rect.h, mx, my) then
+                campaign:recruitCommander(rect.name)
+                return false
+            end
         end
 
     elseif campaign.state == STATE.BATTLE_SELECT then

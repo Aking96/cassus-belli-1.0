@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "id": "QE-ADR-001",
+      "title": "Investigation: newly-picked commander is owned by the opponent",
+      "tier": "QE-ADR",
+      "status": "accepted",
+      "path": "docs/adr/QE-ADR-001-commander-ownership-investigation.md",
+      "depends_on": [],
+      "related_to": ["T-ADR-001"]
+    },
+    {
+      "id": "T-ADR-001",
+      "title": "Recruiting a second commander is its own campaign state",
+      "tier": "T-ADR",
+      "status": "accepted",
+      "path": "docs/adr/T-ADR-001-recruit-second-commander-state.md",
+      "depends_on": ["QE-ADR-001"],
+      "related_to": []
+    }
+  ]
+}
