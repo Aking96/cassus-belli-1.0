@@ -25,6 +25,7 @@ Campaign.STATE = {
     BATTLE = "battle",
     VICTORY = "victory",
     SHOP = "shop",
+    COMMANDER_RECRUIT = "commander_recruit",
     BATTLE_SELECT = "battle_select",
     CAMPAIGN_COMPLETE = "campaign_complete",
     DEFEAT = "defeat",
@@ -382,14 +383,37 @@ function Campaign:buyCard(index)
     self.reserveIds[entry.card.id] = true -- new cards start in Reserve until promoted
 end
 
--- Called from the shop's [CONTINUE].
+-- Called from the shop's [CONTINUE]. Routes through COMMANDER_RECRUIT
+-- first if the player has room for another commander -- see T-ADR-001.
 function Campaign:leaveShop()
     if self.state ~= Campaign.STATE.SHOP then return end
     if #self.availableOpponents == 0 then
         self.state = Campaign.STATE.CAMPAIGN_COMPLETE
+    elseif #self.playerCommanders < Campaign.MAX_PLAYER_COMMANDERS then
+        self.state = Campaign.STATE.COMMANDER_RECRUIT
     else
         self.state = Campaign.STATE.BATTLE_SELECT
     end
+end
+
+-- Called from the COMMANDER_RECRUIT screen. Adds `commander` to the
+-- player's own roster (rather than assigning them as next battle's
+-- opponent, which is what selectOpponent/BATTLE_SELECT do) and removes
+-- them from the opponent pool, since a recruited commander is no longer
+-- fightable as an enemy.
+-- @adr {T-ADR-001} Recruiting a second commander is its own campaign state
+function Campaign:recruitCommander(commander)
+    if self.state ~= Campaign.STATE.COMMANDER_RECRUIT then return end
+    if not contains(self.availableOpponents, commander) then return end
+
+    table.insert(self.playerCommanders, commander)
+    for i, name in ipairs(self.availableOpponents) do
+        if name == commander then
+            table.remove(self.availableOpponents, i)
+            break
+        end
+    end
+    self.state = Campaign.STATE.BATTLE_SELECT
 end
 
 -- Called from the BATTLE_SELECT screen.
